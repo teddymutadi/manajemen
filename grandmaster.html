@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slideshow Presentasi</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: #000;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+      padding-top: 40px;
+    }
+
+    /* =====================================================
+       TIMER DI POJOK KIRI ATAS
+       ===================================================== */
+    .timer-container {
+      position: absolute;
+      top: 15px;
+      left: 25px;
+      font-size: 1.15rem;
+      font-weight: bold;
+      letter-spacing: 1.5px;
+      color: rgba(255, 255, 255, 0.85);
+      z-index: 100;
+      font-family: monospace;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+    }
+
+    /* =====================================================
+       NOMOR SLIDE DI POJOK KANAN ATAS
+       ===================================================== */
+    .slide-counter {
+      position: absolute;
+      top: 15px;
+      right: 25px;
+      font-size: 1.15rem;
+      font-weight: bold;
+      letter-spacing: 1.5px;
+      color: rgba(255, 255, 255, 0.85);
+      z-index: 100;
+      font-family: monospace;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+    }
+
+    /* =====================================================
+       CONTAINER UTAMA SLIDESHOW
+       ===================================================== */
+    .slideshow-wrapper {
+      width: 85vw;
+      max-width: 1000px;
+      max-height: 78vh;
+      aspect-ratio: 16 / 9;
+      position: relative;
+      overflow: hidden;
+      background: #000;
+      margin-top: 15px;
+    }
+
+    .slideshow-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* =====================================================
+       SETIAP SLIDE
+       ===================================================== */
+    .mySlides {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateX(0);
+      transition: transform 2s ease-in-out,
+                  opacity 2s ease-in-out;
+    }
+
+    /* Slide aktif */
+    .mySlides.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(0);
+      z-index: 2;
+    }
+
+    /* Slide yang sedang dianimasikan */
+    .mySlides.animating {
+      opacity: 1;
+      visibility: visible;
+      z-index: 3;
+    }
+
+    .mySlides img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      background-color: #000;
+    }
+
+    /* =====================================================
+       TOMBOL NAVIGASI
+       ===================================================== */
+
+    .button-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      margin-top: 20px;
+
+      /* Mencegah elemen tambahan muncul */
+      position: relative;
+      overflow: hidden;
+
+      /* Menghilangkan pseudo-element */
+      font-size: 0;
+    }
+
+    /* Hilangkan SEMUA pseudo-element container */
+    .button-container::before,
+    .button-container::after {
+      content: none !important;
+      display: none !important;
+      width: 0 !important;
+      height: 0 !important;
+      visibility: hidden !important;
+    }
+
+    /* =====================================================
+       TOMBOL
+       ===================================================== */
+
+    .nav-btn {
+      background-color: rgba(255, 255, 255, 0.15);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+
+      padding: 8px 24px;
+
+      font-family: Arial, sans-serif;
+      font-size: 0.95rem;
+      font-weight: bold;
+
+      cursor: pointer;
+      border-radius: 4px;
+
+      transition: all 0.3s ease;
+
+      position: relative;
+
+      /* Pastikan tombol tidak mewarisi font-size 0 */
+      line-height: normal;
+
+      /* Hilangkan dekorasi */
+      text-decoration: none;
+      text-indent: 0;
+    }
+
+    /* Hilangkan pseudo-element tombol */
+    .nav-btn::before,
+    .nav-btn::after {
+      content: none !important;
+      display: none !important;
+      width: 0 !important;
+      height: 0 !important;
+      visibility: hidden !important;
+    }
+
+    .nav-btn:hover {
+      background-color: rgba(255, 255, 255, 0.3);
+      border-color: rgba(255, 255, 255, 0.6);
+    }
+
+    .nav-btn:active {
+      transform: scale(0.97);
+    }
+
+    /* =====================================================
+       PENCEGAHAN TITIK / TEKS TAMBAHAN DI AREA NAVIGASI
+       ===================================================== */
+
+    .button-container > * {
+      list-style: none !important;
+    }
+
+    .button-container button {
+      list-style: none !important;
+      outline: none;
+    }
+
+    /* =====================================================
+       RESPONSIVE
+       ===================================================== */
+
+    @media (max-width: 600px) {
+
+      .timer-container {
+        left: 12px;
+        top: 10px;
+        font-size: 0.9rem;
+      }
+
+      .slide-counter {
+        right: 12px;
+        top: 10px;
+        font-size: 0.9rem;
+      }
+
+      .slideshow-wrapper {
+        width: 95vw;
+        max-height: 70vh;
+      }
+
+      .button-container {
+        gap: 10px;
+        margin-top: 15px;
+      }
+
+      .nav-btn {
+        padding: 7px 16px;
+        font-size: 0.8rem;
+      }
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- =====================================================
+       TIMER
+       ===================================================== -->
+  <div class="timer-container" id="presentationTimer">
+    00:00:00
+  </div>
+
+
+  <!-- =====================================================
+       NOMOR SLIDE
+       ===================================================== -->
+  <div class="slide-counter" id="slideCounter">
+    SLIDE 01/16
+  </div>
+
+
+  <!-- =====================================================
+       WRAPPER SLIDESHOW 16:9
+       ===================================================== -->
+  <div class="slideshow-wrapper">
+
+    <div class="slideshow-container" id="slideContainer">
+
+      <div class="mySlides active"><img src="https://teddymutadi.github.io/manajemen/master1.jpg" alt="Slide 1"></div>
+      <div class="mySlides"><img src="https://teddymutadi.github.io/manajemen/master2.jpg" alt="Slide 2"></div>
+      <div class="mySlides"><img src="https://teddymutadi.github.io/manajemen/master3.jpg" alt="Slide 3"></div>
+      <div class="mySlides"><img src="https://teddymutadi.github.io/manajemen/master4.jpg" alt="Slide 4"></div>
+      <div class="mySlides"><img src="https://teddymutadi.github.io/manajemen/master5.jpg" alt="Slide 5"></div>
+      <div class="mySlides"><img src="https://teddymutadi.github.io/manajemen/master6.jpg" alt="Slide 6"></div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- =====================================================
+       TOMBOL NAVIGASI
+       ===================================================== -->
+  <div class="button-container">
+
+    <button
+      type="button"
+      class="nav-btn"
+      onclick="changeSlide(-1)">
+      PREVIOUS
+    </button>
+
+    <button
+      type="button"
+      class="nav-btn"
+      onclick="changeSlide(1)">
+      NEXT
+    </button>
+
+  </div>
+
+
+  <script>
+
+    // =====================================================
+    // TIMER hh:mm:ss REAL-TIME
+    // =====================================================
+
+    let totalSeconds = 0;
+
+    setInterval(() => {
+
+      totalSeconds++;
+
+      let hours =
+        Math.floor(totalSeconds / 3600);
+
+      let minutes =
+        Math.floor((totalSeconds % 3600) / 60);
+
+      let seconds =
+        totalSeconds % 60;
+
+      let formattedTime =
+        String(hours).padStart(2, '0') + ":" +
+        String(minutes).padStart(2, '0') + ":" +
+        String(seconds).padStart(2, '0');
+
+      document.getElementById(
+        "presentationTimer"
+      ).innerText = formattedTime;
+
+    }, 1000);
+
+
+    // =====================================================
+    // SLIDESHOW
+    // =====================================================
+
+    let currentIndex = 0;
+
+    const slides =
+      document.getElementsByClassName("mySlides");
+
+    let isTransitioning = false;
+
+
+    // =====================================================
+    // UPDATE NOMOR SLIDE
+    // =====================================================
+
+    function updateSlideCounter() {
+
+      const currentSlideNumber =
+        String(currentIndex + 1).padStart(2, '0');
+
+      const totalSlideNumber =
+        String(slides.length).padStart(2, '0');
+
+      document.getElementById(
+        "slideCounter"
+      ).innerText =
+        `SLIDE ${currentSlideNumber}/${totalSlideNumber}`;
+
+    }
+
+
+    // =====================================================
+    // GANTI SLIDE
+    // =====================================================
+
+    function changeSlide(direction) {
+
+      if (isTransitioning) return;
+
+      isTransitioning = true;
+
+      let oldIndex = currentIndex;
+
+      currentIndex += direction;
+
+
+      // NEXT dari slide terakhir kembali ke slide pertama
+      if (currentIndex >= slides.length) {
+
+        currentIndex = 0;
+
+      }
+
+      // PREVIOUS dari slide pertama menuju slide terakhir
+      else if (currentIndex < 0) {
+
+        currentIndex = slides.length - 1;
+
+      }
+
+
+      // Update nomor slide
+      updateSlideCounter();
+
+
+      let currentSlide =
+        slides[oldIndex];
+
+      let nextSlide =
+        slides[currentIndex];
+
+
+      // =====================================================
+      // ARAH ANIMASI
+      //
+      // NEXT:
+      // Slide baru masuk dari KANAN
+      // Slide lama keluar ke KIRI
+      //
+      // PREVIOUS:
+      // Slide baru masuk dari KIRI
+      // Slide lama keluar ke KANAN
+      // =====================================================
+
+      let startTransform =
+        (direction === 1)
+          ? "100%"
+          : "-100%";
+
+      let exitTransform =
+        (direction === 1)
+          ? "-100%"
+          : "100%";
+
+
+      // =====================================================
+      // POSISI AWAL SLIDE BARU
+      // =====================================================
+
+      nextSlide.style.transition = "none";
+
+      nextSlide.style.transform =
+        `translateX(${startTransform})`;
+
+      nextSlide.className =
+        "mySlides animating";
+
+
+      // Paksa browser membaca ulang layout
+      void nextSlide.offsetWidth;
+
+
+      // =====================================================
+      // TRANSISI
+      // =====================================================
+
+      nextSlide.style.transition =
+        "transform 2s ease-in-out, opacity 2s ease-in-out";
+
+      currentSlide.style.transition =
+        "transform 2s ease-in-out, opacity 2s ease-in-out";
+
+
+      // =====================================================
+      // JALANKAN ANIMASI
+      // =====================================================
+
+      nextSlide.style.transform =
+        "translateX(0)";
+
+      currentSlide.style.transform =
+        `translateX(${exitTransform})`;
+
+
+      // =====================================================
+      // SETELAH ANIMASI SELESAI
+      // =====================================================
+
+      setTimeout(() => {
+
+        currentSlide.className =
+          "mySlides";
+
+        currentSlide.style.transform = "";
+
+        currentSlide.style.transition = "";
+
+
+        nextSlide.className =
+          "mySlides active";
+
+        nextSlide.style.transform = "";
+
+        nextSlide.style.transition = "";
+
+
+        isTransitioning = false;
+
+      }, 2000);
+
+    }
+
+
+    // =====================================================
+    // INISIALISASI NOMOR SLIDE
+    // =====================================================
+
+    updateSlideCounter();
+
+  </script>
+
+</body>
+</html>
